@@ -1,0 +1,21 @@
+# Vasques Auto Center - robots.txt
+# Permite todos os crawlers (inclusive IAs) para máxima visibilidade
+
+User-agent: *
+Allow: /
+
+# Permite crawlers de IA para GEO (Generative Engine Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Sitemap
+Sitemap: https://ag5agenciaa2-maker.github.io/lp-vasques-auto-center/sitemap.xml

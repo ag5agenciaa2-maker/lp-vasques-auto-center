@@ -3,6 +3,38 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ── Smart Header (esconde no scroll down, reaparece no scroll up) ──
+    const navbar = document.querySelector('.navbar');
+    let lastScrollY = 0;
+    let ticking = false;
+    const SCROLL_THRESHOLD = 80; // Só esconde após rolar além da altura do header
+
+    function updateNavbar() {
+        const currentScrollY = window.scrollY;
+
+        if (currentScrollY > SCROLL_THRESHOLD) {
+            if (currentScrollY > lastScrollY) {
+                // Rolando para baixo - esconde
+                navbar.classList.add('navbar--hidden');
+            } else {
+                // Rolando para cima - mostra
+                navbar.classList.remove('navbar--hidden');
+            }
+        } else {
+            // No topo da página - sempre visível
+            navbar.classList.remove('navbar--hidden');
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(updateNavbar);
+            ticking = true;
+        }
+    }, { passive: true });
     // ── Menu Mobile ──────────────────────────────────────────────
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -292,18 +324,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// WhatsApp Lead Form
+// ── Máscara de Telefone (WhatsApp com DDD) ─────────────────────
+const phoneInput = document.getElementById('phone');
+if (phoneInput) {
+  phoneInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    // Formata: (XX) XXXXX-XXXX
+    if (value.length > 6) {
+      value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+    } else if (value.length > 2) {
+      value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    } else if (value.length > 0) {
+      value = `(${value}`;
+    }
+    e.target.value = value;
+  });
+}
+
+// ── WhatsApp Lead Form (Padrão AG5 - Formato Obrigatório Adaptado) ──────
 document.getElementById('whatsappForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
   
-  const name = document.getElementById('name').value || 'Não informado';
-  const car = document.getElementById('car').value || 'Não informado';
-  const email = document.getElementById('email').value || 'Não informado';
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim() || 'Não informado';
+  const vehicle = document.getElementById('car').value.trim() || 'Não informado';
   const service = document.getElementById('service').value;
-  const messageText = document.getElementById('message').value || 'Sem observações';
+  const messageText = document.getElementById('message').value.trim();
   
-  const message = `Olá, gostaria de um orçamento!%0A%0A*Nome:* ${name}%0A*Veículo:* ${car}%0A*E-mail:* ${email}%0A*Serviço:* ${service}%0A*Mensagem:* ${messageText}`;
-  const whatsappUrl = `https://wa.me/21964779051?text=${message}`;
+  // Formato obrigatório AG5 de mensagem adaptado para Oficina
+  let message = `Olá, me chamo ${name}, vim através do site e gostaria de uma informação.%0A%0A`;
+  message += `- Telefone: ${phone}%0A`;
+  message += `- Veículo: ${vehicle}%0A`;
+  message += `- Serviço Desejado: ${service}`;
+  
+  if (messageText) {
+    message += `%0A- Relato do Problema: ${messageText}`;
+  }
+  
+  const whatsappUrl = `https://wa.me/5521964779051?text=${encodeURIComponent(decodeURIComponent(message))}`;
   
   window.open(whatsappUrl, '_blank');
 });

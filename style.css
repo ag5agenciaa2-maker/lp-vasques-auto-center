@@ -11,7 +11,7 @@
   --primary-hover: #E5A500;
   --text-main: #ffffff;
   --text-muted: #a1a1aa;
-  --text-dim: #71717a;
+  --text-dim: #8a8a95;
   --text-light: #e4e4e7;
   --border-subtle: rgba(255, 255, 255, 0.05);
   --selection-bg: #FF6600;
@@ -19,6 +19,7 @@
   --whatsapp-hover: #128C7E;
   --font-inter: 'Inter', sans-serif;
   --font-oswald: 'Oswald', sans-serif;
+  --header-height: 80px;
 }
 
 /* Base Reset */
@@ -30,6 +31,11 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Scroll-margin para âncoras (evita header sobrepor conteúdo) */
+[id] {
+  scroll-margin-top: var(--header-height, 80px);
 }
 
 body {
@@ -109,7 +115,13 @@ ul {
   background-color: rgba(9, 9, 11, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
-  height: 80px;
+  height: var(--header-height, 80px);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smart Header: esconde ao rolar para baixo */
+.navbar--hidden {
+  transform: translateY(-100%);
 }
 
 .nav-container {
@@ -255,7 +267,7 @@ ul {
   box-shadow: 0 10px 30px rgba(255, 102, 0, 0.2);
 }
 
-/* Floating WhatsApp */
+/* Floating WhatsApp (Padrão AG5) */
 .whatsapp-float {
   position: fixed;
   bottom: 1.5rem;
@@ -270,11 +282,49 @@ ul {
   justify-content: center;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s, background-color 0.2s;
+  animation: whatsappPulse 2.5s ease-in-out infinite;
 }
 
 .whatsapp-float:hover {
   transform: scale(1.1);
   background-color: var(--whatsapp-hover);
+  animation: none;
+}
+
+/* Badge de notificação simulando mensagem não lida */
+.whatsapp-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  background-color: #ff3b30;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-dark);
+  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.5);
+  pointer-events: none;
+  animation: badgeBounce 3s ease-in-out infinite;
+}
+
+/* Animação de respiração/pulsação do botão WhatsApp */
+@keyframes whatsappPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  50%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+/* Animação sutil do badge */
+@keyframes badgeBounce {
+  0%, 80%, 100% { transform: scale(1); }
+  85% { transform: scale(1.2); }
+  90% { transform: scale(0.95); }
+  95% { transform: scale(1.05); }
 }
 
 /* Hero Section */
@@ -497,6 +547,9 @@ ul {
 .pain-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Service Cards */
@@ -587,14 +640,24 @@ ul {
   background-color: #3f3f46; /* Dark Asphalt */
   border-radius: 99px;
   z-index: 0;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.2) 50%, transparent 50%);
+  background-size: 20px 2px;
+  background-repeat: repeat-x;
+  background-position: center;
 }
 
-/* Dashed Line on the track */
+/* Moving Light Particle */
 .steps-grid::after {
   content: '';
   position: absolute;
-  border: 2px dashed rgba(255, 255, 255, 0.4);
   z-index: 1;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 0 20px 5px var(--primary), 0 0 40px 10px rgba(255, 102, 0, 0.4);
+  pointer-events: none;
+  opacity: 0;
 }
 
 @media (min-width: 768px) {
@@ -605,10 +668,9 @@ ul {
     height: 12px;
   }
   .steps-grid::after {
-    top: 52px;
+    top: 44px; /* Centered on the 12px track */
     left: 10%;
-    right: 10%;
-    height: 0;
+    animation: move-light-horizontal 5s linear infinite;
   }
 }
 
@@ -619,13 +681,15 @@ ul {
     bottom: 2rem;
     width: 12px;
     transform: translateX(-50%);
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 50%, transparent 50%);
+    background-size: 2px 20px;
+    background-repeat: repeat-y;
   }
   .steps-grid::after {
     left: 50%;
     top: 2rem;
-    bottom: 2rem;
-    width: 0;
     transform: translateX(-50%);
+    animation: move-light-vertical 5s linear infinite;
   }
 }
 
@@ -651,6 +715,42 @@ ul {
   position: relative;
   z-index: 10;
   box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
+  animation: pulse-step 5s infinite;
+}
+
+.step-item:nth-child(1) .step-circle { animation-delay: 0s; }
+.step-item:nth-child(2) .step-circle { animation-delay: 1.25s; }
+.step-item:nth-child(3) .step-circle { animation-delay: 2.5s; }
+.step-item:nth-child(4) .step-circle { animation-delay: 3.75s; }
+.step-item:nth-child(5) .step-circle { animation-delay: 5s; }
+
+@keyframes move-light-horizontal {
+  0% { left: 10%; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { left: 90%; opacity: 0; }
+}
+
+@keyframes move-light-vertical {
+  0% { top: 2rem; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: calc(100% - 2rem); opacity: 0; }
+}
+
+@keyframes pulse-step {
+  0%, 100% { 
+    transform: scale(1); 
+    background-color: #18181b; 
+    color: var(--text-main);
+    box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
+  }
+  15%, 25% { 
+    transform: scale(1.15); 
+    background-color: var(--primary); 
+    color: white;
+    box-shadow: 0 0 35px var(--primary);
+  }
 }
 
 .step-item:hover .step-circle {
@@ -1153,6 +1253,23 @@ footer {
   }
 }
 
+/* Toque tátil: área mínima 44x44px em elementos clicáveis no mobile */
+@media (max-width: 768px) {
+  a, button, summary, .service-link, .nav-link, .mobile-link,
+  .footer-links a, .video-dot, .carousel-nav {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  summary {
+    min-height: 44px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
 /* Utility classes to avoid breaking too much code */
 .w-full {
   width: 100%;
@@ -1651,4 +1768,107 @@ footer {
 
 .testimonial-card:hover .google-tag {
   opacity: 1;
+}
+
+/* ============================================================
+   ANIMATION: EXHAUST BACKFIRE (Horizontal - Cores de Fogo Real)
+   ============================================================ */
+.exhaust-fire-container {
+  position: absolute;
+  top: 50%;
+  left: -50px;
+  width: 120vw;
+  height: 450px;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.18; /* Aumentado levemente para destacar as novas cores */
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+  mix-blend-mode: screen; /* Faz as cores brilharem contra o fundo */
+}
+
+.fire-particle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 180px;
+  width: 350px;
+  /* Gradiente de calor real: Branco (núcleo) -> Amarelo -> Laranja -> Vermelho */
+  background: radial-gradient(ellipse at left, 
+    #fff 0%, 
+    #ffcc00 25%, 
+    #ff6600 50%, 
+    #ff2200 80%, 
+    transparent 100%
+  );
+  border-radius: 40% 100% 100% 40% / 50%;
+  filter: blur(35px);
+  animation: backfire-stream 4s infinite ease-out; /* Aumentado de 1.4s para 4s */
+  opacity: 0;
+}
+
+/* Variações massivas para o fluxo - Delays ajustados para a nova duração */
+.fire-particle.p1 { animation-delay: 0s; height: 100px; }
+.fire-particle.p2 { animation-delay: 0.8s; height: 200px; filter: blur(40px); opacity: 0.8; }
+.fire-particle.p3 { animation-delay: 1.6s; height: 80px; filter: blur(15px); }
+.fire-particle.p4 { animation-delay: 2.4s; height: 160px; filter: blur(30px); }
+.fire-particle.p5 { animation-delay: 3.2s; height: 120px; filter: blur(20px); }
+
+@keyframes backfire-stream {
+  0% {
+    width: 60px;
+    transform: translateY(-50%) translateX(0) scale(0.6);
+    opacity: 0;
+    filter: blur(10px) brightness(2);
+  }
+  10% {
+    opacity: 1;
+    filter: blur(15px) brightness(2);
+    box-shadow: 0 0 80px #fff, 0 0 120px #ffcc00;
+  }
+  35% {
+    transform: translateY(-50%) translateX(450px) scale(2.5, 1.3);
+    opacity: 1;
+    filter: blur(40px) brightness(1.5);
+    box-shadow: 0 0 100px #ff6600, 0 0 150px #ff2200;
+  }
+  100% {
+    width: 1500px;
+    transform: translateY(-50%) translateX(100vw) scale(4, 0.6);
+    opacity: 0;
+    filter: blur(90px) brightness(1);
+  }
+}
+
+.exhaust-pipe-head::after {
+  content: '';
+  position: absolute;
+  right: -25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  filter: blur(25px);
+  border-radius: 50%;
+  box-shadow: 0 0 40px #ffcc00, 0 0 80px #ff2200;
+  animation: pipe-glow 4s infinite; /* Sincronizado com as partículas */
+}
+
+@keyframes pipe-glow {
+  0%, 100% { opacity: 0.1; transform: translateY(-50%) scale(1); }
+  15% { opacity: 1; transform: translateY(-50%) scale(3.5); }
+}
+
+@media (max-width: 768px) {
+  .exhaust-fire-container {
+    height: 250px;
+    opacity: 0.08;
+    top: 55%;
+  }
+  .fire-particle {
+    height: 80px;
+  }
 }
